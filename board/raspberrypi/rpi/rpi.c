@@ -664,10 +664,11 @@ int board_late_init(void)
 	int err;
 
 	/* Only scan for RP1 on RPi 5 family boards (BCM2712)
-	 * Board types 0x17-0x1A: RPi 5B, CM5, RPi 500, CM5 Lite
+	 * Board types: RPi 5B, CM5, RPi 500, CM5 Lite
 	 */
 #ifdef CONFIG_BOARD_TYPES
-	if (gd->board_type < 0x17 || gd->board_type > 0x1A) {
+	if (gd->board_type < RPI_BOARD_TYPE_RPI5_FAMILY_MIN ||
+	    gd->board_type > RPI_BOARD_TYPE_RPI5_FAMILY_MAX) {
 		/* Not a RPi 5 board, skip RP1 detection */
 		return 0;
 	}
