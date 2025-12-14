@@ -20,6 +20,7 @@
 #include <asm/arch/sdhci.h>
 #include <asm/global_data.h>
 #include <dm/platform_data/serial_bcm283x_mu.h>
+#include <broadcom/bcm_board_types.h>
 #ifdef CONFIG_ARM64
 #include <asm/armv8/mmu.h>
 #endif
@@ -532,6 +533,10 @@ static void get_board_revision(void)
 		model = &models[rev_type];
 	}
 
+	#ifdef CONFIG_BOARD_TYPES
+		gd->board_type = rev_type;
+	#endif
+
 	printf("RPI %s (0x%x)\n", model->name, revision);
 }
 
@@ -643,6 +648,39 @@ int ft_board_setup(void *blob, struct bd_info *bd)
 
 	return 0;
 }
+
+/* TODO: Using late_init to initialize pci device with ID_RP1.
+ * RP1 pci device should be initialized by the PCI subsystem because
+ * it is under develop right now and depends from the final device-tree
+ * format from the Linux Kernel. Current device-tree format violates
+ * pci driver model. So this should be changed after upstreaming RP1
+ * to the Linux Kernel source code.
+ * This initialization should be done only for RPI5 board.
+ */
+#ifdef CONFIG_BCM2712
+int board_late_init(void)
+{
+	struct udevice *dev;
+	int err;
+
+	/* Only scan for RP1 on RPi 5 family boards (BCM2712)
+	 * Board types 0x17-0x1A: RPi 5B, CM5, RPi 500, CM5 Lite
+	 */
+#ifdef CONFIG_BOARD_TYPES
+	if (gd->board_type < 0x17 || gd->board_type > 0x1A) {
+		/* Not a RPi 5 board, skip RP1 detection */
+		return 0;
+	}
+#endif
+
+	err = dm_pci_find_device(PCI_VENDOR_ID_RPI, PCI_DEVICE_ID_RP1_C0,
+				 0, &dev);
+	if (err)
+		printf("RPI: RP1 device not found\n");
+
+	return 0;
+}
+#endif
 
 #if CONFIG_IS_ENABLED(GENERATE_ACPI_TABLE)
 static bool is_rpi4(void)
