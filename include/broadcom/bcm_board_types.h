@@ -20,6 +20,13 @@
  */
 typedef enum {
 	BCM2712_RPI_5_B_NEW = 0x17,
+	BCM2712_CM5 = 0x18,
+	BCM2712_RPI_500 = 0x19,
+	BCM2712_CM5_LITE = 0x1A,
 } bcm_board_type_t;
+
+/* Range constants for Raspberry Pi 5 family boards */
+#define RPI_BOARD_TYPE_RPI5_FAMILY_MIN	BCM2712_RPI_5_B_NEW
+#define RPI_BOARD_TYPE_RPI5_FAMILY_MAX	BCM2712_CM5_LITE
 
 #endif /* _BCM_BOARD_TYPES_H_ */
