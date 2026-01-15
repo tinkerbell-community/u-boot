@@ -5,4 +5,5 @@
 # https://spdx.org/licenses
 
 obj-$(CONFIG_PINCTRL_BCM283X) += pinctrl-bcm283x.o
+obj-$(CONFIG_PINCTRL_RP1) += pinctrl-rp1.o
 obj-$(CONFIG_PINCTRL_BCM6838) += pinctrl-bcm6838.o

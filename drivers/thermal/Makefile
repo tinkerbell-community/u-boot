@@ -4,6 +4,7 @@
 # Author: Nitin Garg <nitin.garg@freescale.com>
 
 obj-$(CONFIG_DM_THERMAL) += thermal-uclass.o
+obj-$(CONFIG_BCM2835_THERMAL) += bcm2835_thermal.o
 obj-$(CONFIG_IMX_SCU_THERMAL) += imx_scu_thermal.o
 obj-$(CONFIG_IMX_THERMAL) += imx_thermal.o
 obj-$(CONFIG_IMX_TMU) += imx_tmu.o

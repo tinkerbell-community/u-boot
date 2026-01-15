@@ -55,4 +55,12 @@ config TI_LM74_THERMAL
 	 Enable thermal support for the Texas Instruments LM74 chip.
 	 The driver supports reading CPU temperature.
 
+config BCM2835_THERMAL
+	bool "Temperature sensor driver for Broadcom BCM2835 SoCs"
+	depends on ARCH_BCM283X
+	help
+	  Support for Temperature sensor found on Broadcom BCM2835/BCM2711 SoCs.
+	  This includes Raspberry Pi 4 (BCM2711) and Raspberry Pi 5 (BCM2712).
+	  The driver supports reading the SoC temperature.
+
 endif # if DM_THERMAL

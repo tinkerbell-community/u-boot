@@ -1,0 +1,37 @@
+// SPDX-License-Identifier: GPL-2.0
+/*
+ * Minimal Device Tree stub for Raspberry Pi 5 Model B (BCM2712)
+ * The actual device tree is provided by the firmware at runtime
+ */
+
+/dts-v1/;
+
+/ {
+	compatible = "raspberrypi,5-model-b", "brcm,bcm2712";
+	model = "Raspberry Pi 5 Model B";
+
+	#address-cells = <2>;
+	#size-cells = <2>;
+
+	chosen {
+		stdout-path = "serial10:115200n8";
+	};
+
+	aliases {
+		serial10 = "/soc/serial@107d001000";
+	};
+
+	soc {
+		compatible = "simple-bus";
+		#address-cells = <2>;
+		#size-cells = <2>;
+		ranges;
+
+		uart10: serial@107d001000 {
+			compatible = "arm,pl011", "arm,primecell";
+			reg = <0x10 0x7d001000 0x0 0x200>;
+		};
+	};
+};
+
+#include "bcm2712-rpi-5-b-u-boot.dtsi"
