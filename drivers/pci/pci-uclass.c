@@ -1200,6 +1200,7 @@ static int pci_uclass_post_probe(struct udevice *bus)
 static int pci_uclass_child_post_bind(struct udevice *dev)
 {
 	struct pci_child_plat *pplat;
+	int ret;
 
 	if (!dev_has_ofnode(dev))
 		return 0;
@@ -1207,7 +1208,10 @@ static int pci_uclass_child_post_bind(struct udevice *dev)
 	pplat = dev_get_parent_plat(dev);
 
 	/* Extract vendor id and device id if available */
-	ofnode_read_pci_vendev(dev_ofnode(dev), &pplat->vendor, &pplat->device);
+	ret = ofnode_read_pci_vendev(dev_ofnode(dev), &pplat->vendor,
+				     &pplat->device);
+	if (ret)
+		pplat->devfn = -1;
 
 	/* Extract the devfn from fdt_pci_addr */
 	pplat->devfn = pci_get_devfn(dev);

@@ -264,6 +264,13 @@ config CLK_ZYNQMP
 	  This clock driver adds support for clock realted settings for
 	  ZynqMP platform.
 
+config CLK_RP1
+	bool "Enable clock driver for RP1"
+	depends on CLK
+	help
+	  Clock controller driver for RP1 PCIe multifunction chip.
+	  Provides CLK_ETH_TSU and other clocks for RP1 peripherals.
+
 source "drivers/clk/adi/Kconfig"
 source "drivers/clk/analogbits/Kconfig"
 source "drivers/clk/at91/Kconfig"

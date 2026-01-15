@@ -31,17 +31,22 @@
  * core modifications here...
  */
 
+#include <broadcom/bcm_board_types.h>
 #include <net.h>
 #include <malloc.h>
 #include <miiphy.h>
+#include <asm/gpio.h>
 
 #include <linux/mii.h>
 #include <asm/io.h>
 #include <linux/dma-mapping.h>
+#ifndef CONFIG_CLK
 #include <asm/arch/clk.h>
+#endif
 #include <linux/errno.h>
 
 #include "macb.h"
+#include <phys2bus.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -100,6 +105,8 @@ struct macb_dma_desc_64 {
 #define RXBUF_FRMLEN_MASK	0x00000fff
 #define TXBUF_FRMLEN_MASK	0x000007ff
 
+#define msleep(x) udelay((x) * 1000)
+
 struct macb_device {
 	void			*regs;
 
@@ -139,6 +146,10 @@ struct macb_device {
 	unsigned long		pclk_rate;
 #endif
 	phy_interface_t		phy_interface;
+
+	struct gpio_desc phy_reset_gpio;
+	int phy_reset_ms;
+	struct udevice *udev;
 };
 
 struct macb_usrio_cfg {

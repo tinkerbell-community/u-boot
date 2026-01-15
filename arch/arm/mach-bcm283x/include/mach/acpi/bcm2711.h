@@ -70,6 +70,10 @@
 #define PCIE_MISC_RC_BAR2_CONFIG_HI               0x4038
 #define PCIE_MISC_RC_BAR3_CONFIG_LO               0x403c
 #define  RC_BAR3_CONFIG_LO_SIZE_MASK                0x1f
+
+#define PCIE_MISC_PCIE_CTRL                       0x4064
+#define  PCIE_MISC_PCIE_CTRL_PCIE_PERSTB_MASK       0x4
+
 #define PCIE_MISC_PCIE_STATUS                     0x4068
 #define  STATUS_PCIE_PORT_MASK                      0x80
 #define  STATUS_PCIE_PORT_SHIFT                        7
@@ -92,6 +96,29 @@
 #define  PCIE_MEM_WIN0_LIMIT_HI_LIMIT_MASK        0xff
 #define PCIE_MEM_WIN0_LIMIT_HI(win)	\
 	 PCIE_MISC_CPU_2_PCIE_MEM_WIN0_LIMIT_HI + ((win) * 8)
+
+#define PCIE_RC_PL_PHY_CTL_15                     0x184c
+#define  PCIE_RC_PL_PHY_CTL_15_DIS_PLL_PD_MASK      0x400000
+#define  PCIE_RC_PL_PHY_CTL_15_PM_CLK_PERIOD_MASK   0xff
+
+#define PCIE_MISC_UBUS_CTRL                       0x40a4
+#define  PCIE_MISC_UBUS_CTRL_UBUS_PCIE_REPLY_ERR_DIS_MASK     BIT(13)
+#define  PCIE_MISC_UBUS_CTRL_UBUS_PCIE_REPLY_DECERR_DIS_MASK  BIT(19)
+#define PCIE_MISC_AXI_READ_ERROR_DATA             0x4170
+#define PCIE_MISC_UBUS_TIMEOUT                    0x40A8
+#define PCIE_MISC_RC_CONFIG_RETRY_TIMEOUT         0x405c
+#define PCIE_MISC_RC_BAR4_CONFIG_LO               0x40d4
+#define PCIE_MISC_RC_BAR4_CONFIG_HI               0x40d8
+#define PCIE_MISC_UBUS_BAR_CONFIG_REMAP_HI_MASK   0xff
+#define PCIE_MISC_UBUS_BAR4_CONFIG_REMAP_HI       0x4110
+#define PCIE_MISC_UBUS_BAR_CONFIG_REMAP_ENABLE    0x1
+#define PCIE_MISC_UBUS_BAR_CONFIG_REMAP_LO_MASK   0xfffff000
+#define PCIE_MISC_UBUS_BAR4_CONFIG_REMAP_LO       0x410c
+
+#define PCIE_MISC_UBUS_BAR2_CONFIG_REMAP          0x40b4
+#define  PCIE_MISC_UBUS_BAR2_CONFIG_REMAP_ACCESS_ENABLE_MASK  BIT(0)
+#define  MISC_CTRL_PCIE_RCB_MPS_MODE_MASK           0x400
+#define  MISC_CTRL_MAX_BURST_SIZE_128_2712          0x100000
 
 #define PCIE_MISC_HARD_PCIE_HARD_DEBUG            0x4204
 #define  PCIE_HARD_DEBUG_SERDES_IDDQ_MASK         0x08000000
@@ -124,6 +151,7 @@
 
 #define PCIE_RGR1_SW_INIT_1_INIT_MASK                           0x2
 #define PCIE_RGR1_SW_INIT_1_PERST_MASK                          0x1
+#define PCIE_RGR1_SW_INIT_1_PERSTB_MASK                         0x4
 
 #define PCIE_MISC_HARD_PCIE_HARD_DEBUG_SERDES_IDDQ_MASK         0x08000000
 
