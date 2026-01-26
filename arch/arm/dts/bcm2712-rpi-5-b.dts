@@ -1,0 +1,218 @@
+// SPDX-License-Identifier: GPL-2.0
+/*
+ * Minimal Device Tree stub for Raspberry Pi 5 Model B (BCM2712)
+ * The actual device tree is provided by the firmware at runtime
+ * This stub provides essential devices for U-Boot operation
+ */
+
+/dts-v1/;
+
+#include <dt-bindings/gpio/gpio.h>
+#include <dt-bindings/interrupt-controller/irq.h>
+
+/ {
+	compatible = "raspberrypi,5-model-b", "brcm,bcm2712";
+	model = "Raspberry Pi 5 Model B";
+
+	#address-cells = <2>;
+	#size-cells = <2>;
+
+	chosen {
+		stdout-path = "serial10:115200n8";
+	};
+
+	aliases {
+		serial10 = "/soc/serial@107d001000";
+		ethernet0 = "/axi/pcie@1000120000/rp1_nexus/pci-ep-bus@1/ethernet@40100000";
+	};
+
+	/* RP1 50MHz oscillator - required for RP1 clocks */
+	clk_rp1_xosc: clock-50000000 {
+		compatible = "fixed-clock";
+		#clock-cells = <0>;
+		clock-output-names = "rp1-xosc";
+		clock-frequency = <50000000>;
+	};
+
+	soc {
+		compatible = "simple-bus";
+		#address-cells = <2>;
+		#size-cells = <2>;
+		ranges;
+
+		uart10: serial@107d001000 {
+			compatible = "arm,pl011", "arm,primecell";
+			reg = <0x10 0x7d001000 0x0 0x200>;
+		};
+
+		/* Mailbox for VideoCore firmware communication */
+		mailbox: mailbox@107d00b880 {
+			compatible = "brcm,bcm2835-mbox";
+			reg = <0x10 0x7d00b880 0x0 0x40>;
+			#mbox-cells = <0>;
+		};
+
+		/* HDMI0 - Primary display output */
+		hdmi0: hdmi@107ef00700 {
+			compatible = "brcm,bcm2712-hdmi0";
+			reg = <0x10 0x7ef00700 0x0 0x300>;
+			status = "okay";
+		};
+
+		/* Simple framebuffer - fallback if firmware provides one */
+		framebuffer: framebuffer {
+			compatible = "simple-framebuffer";
+			status = "disabled";
+		};
+	};
+
+	/* AXI bus - contains PCIe controllers */
+	axi: axi {
+		compatible = "simple-bus";
+		#address-cells = <2>;
+		#size-cells = <2>;
+		ranges;
+
+		/* PCIe0 - M.2 NVMe slot (Hat+) */
+		pcie0: pcie@1000100000 {
+			compatible = "brcm,bcm2712-pcie";
+			reg = <0x10 0x00100000 0x00 0x9310>;
+			device_type = "pci";
+			#address-cells = <3>;
+			#interrupt-cells = <1>;
+			#size-cells = <2>;
+
+			ranges =
+				/* ~4GiB, 32-bit, non-prefetchable at PCIe 00_0000_0000 */
+				<0x02000000 0x00 0x00000000 0x17 0x00000000 0x00 0xfffffffc>,
+				/* 12GiB, 64-bit, prefetchable at PCIe 04_0000_0000 */
+				<0x43000000 0x04 0x00000000 0x14 0x00000000 0x03 0x00000000>;
+
+			dma-ranges =
+				/* 64GiB, 64-bit, prefetchable at PCIe 10_0000_0000 */
+				<0x43000000 0x10 0x00000000 0x00 0x00000000 0x10 0x00000000>;
+		};
+
+		/* PCIe1 - External PCIe slot (requires Hat+ for physical access) */
+		pcie1: pcie@1000110000 {
+			compatible = "brcm,bcm2712-pcie";
+			reg = <0x10 0x00110000 0x00 0x9310>;
+			device_type = "pci";
+			#address-cells = <3>;
+			#interrupt-cells = <1>;
+			#size-cells = <2>;
+
+			ranges =
+				/* ~4GiB, 32-bit, non-prefetchable at PCIe 00_0000_0000 */
+				<0x02000000 0x00 0x00000000 0x1b 0x00000000 0x00 0xfffffffc>,
+				/* 12GiB, 64-bit, prefetchable at PCIe 04_0000_0000 */
+				<0x43000000 0x04 0x00000000 0x18 0x00000000 0x03 0x00000000>;
+
+			dma-ranges =
+				/* 64GiB, 64-bit, non-prefetchable at PCIe 10_0000_0000 */
+				<0x03000000 0x10 0x00000000 0x00 0x00000000 0x10 0x00000000>;
+		};
+
+		/* PCIe2 - RP1 southbridge connection */
+		pcie2: pcie@1000120000 {
+			compatible = "brcm,bcm2712-pcie";
+			reg = <0x10 0x00120000 0x00 0x9310>;
+			device_type = "pci";
+			#address-cells = <3>;
+			#interrupt-cells = <1>;
+			#size-cells = <2>;
+
+			ranges =
+				/* ~4GiB, 32-bit, non-prefetchable at PCIe 00_0000_0000 */
+				<0x02000000 0x00 0x00000000 0x1f 0x00000000 0x00 0xfffffffc>,
+				/* 12GiB, 64-bit, prefetchable at PCIe 04_0000_0000 */
+				<0x43000000 0x04 0x00000000 0x1c 0x00000000 0x03 0x00000000>;
+
+			dma-ranges =
+				/* 4MiB, 32-bit, non-prefetchable at PCIe 00_0000_0000 */
+				<0x02000000 0x00 0x00000000 0x1f 0x00000000 0x00 0x00400000>,
+				/* 64GiB, 64-bit, prefetchable at PCIe 10_0000_0000 */
+				<0x43000000 0x10 0x00000000 0x00 0x00000000 0x10 0x00000000>;
+
+			/* RP1 Nexus - PCI device 1de4:0001 (Raspberry Pi RP1-C0) */
+			rp1_nexus {
+				compatible = "pci1de4,1";
+				#address-cells = <3>;
+				#size-cells = <2>;
+				ranges = <0x01 0x00 0x00000000
+					  0x02000000 0x00 0x00000000
+					  0x0 0x400000>;
+				interrupt-controller;
+				#interrupt-cells = <2>;
+
+				/* RP1 peripheral bus */
+				pci_ep_bus: pci-ep-bus@1 {
+					compatible = "simple-bus";
+					ranges = <0x00 0x40000000  0x01 0x00 0x00000000  0x00 0x00400000>;
+					dma-ranges = <0x10 0x00000000  0x43000000 0x10 0x00000000  0x10 0x00000000>;
+					#address-cells = <2>;
+					#size-cells = <2>;
+
+					/* RP1 Clock controller */
+					rp1_clocks: clocks@40018000 {
+						compatible = "raspberrypi,rp1-clocks";
+						reg = <0x00 0x40018000 0x0 0x10038>;
+						#clock-cells = <1>;
+						clocks = <&clk_rp1_xosc>;
+					};
+
+					/* RP1 GPIO controller */
+					rp1_gpio: pinctrl@400d0000 {
+						compatible = "raspberrypi,rp1-gpio";
+						reg = <0x00 0x400d0000  0x0 0xc000>,
+						      <0x00 0x400e0000  0x0 0xc000>,
+						      <0x00 0x400f0000  0x0 0xc000>;
+						gpio-controller;
+						#gpio-cells = <2>;
+						interrupt-controller;
+						#interrupt-cells = <2>;
+					};
+
+					/* RP1 Ethernet (MACB) */
+					rp1_eth: ethernet@40100000 {
+						compatible = "raspberrypi,rp1-gem";
+						reg = <0x00 0x40100000  0x0 0x4000>;
+						clocks = <&rp1_clocks 12>, /* RP1_CLK_SYS */
+							 <&rp1_clocks 12>, /* RP1_CLK_SYS */
+							 <&rp1_clocks 16>, /* RP1_CLK_ETH */
+							 <&rp1_clocks 29>; /* RP1_CLK_ETH_TSU */
+						clock-names = "pclk", "hclk", "tx_clk", "tsu_clk";
+						local-mac-address = [00 00 00 00 00 00];
+						phy-mode = "rgmii-id";
+						#address-cells = <1>;
+						#size-cells = <0>;
+					};
+
+					/* RP1 USB0 (DWC3) */
+					rp1_usb0: usb@40200000 {
+						compatible = "snps,dwc3";
+						reg = <0x00 0x40200000  0x0 0x100000>;
+						dr_mode = "host";
+						usb3-lpm-capable;
+						snps,dis_rxdet_inp3_quirk;
+						snps,parkmode-disable-hs-quirk;
+						snps,parkmode-disable-ss-quirk;
+					};
+
+					/* RP1 USB1 (DWC3) */
+					rp1_usb1: usb@40300000 {
+						compatible = "snps,dwc3";
+						reg = <0x00 0x40300000  0x0 0x100000>;
+						dr_mode = "host";
+						usb3-lpm-capable;
+						snps,dis_rxdet_inp3_quirk;
+						snps,parkmode-disable-hs-quirk;
+						snps,parkmode-disable-ss-quirk;
+					};
+				};
+			};
+		};
+	};
+};
+
+#include "bcm2712-rpi-5-b-u-boot.dtsi"
