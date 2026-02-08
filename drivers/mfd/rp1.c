@@ -97,7 +97,20 @@ static int rp1_probe(struct udevice *dev)
 
 static int rp1_bind(struct udevice *dev)
 {
+	int ret;
+
 	device_set_name(dev, RP1_DRIVER_NAME);
+
+	/* Scan and bind child devices from device tree
+	 * The RP1 MFD contains child devices (GPIO, clocks, Ethernet, USB)
+	 * that need to be bound and probed
+	 */
+	ret = dm_scan_fdt_dev(dev);
+	if (ret) {
+		dev_err(dev, "Failed to bind child devices: %d\n", ret);
+		return ret;
+	}
+
 	return 0;
 }
 
