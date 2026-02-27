@@ -6,6 +6,14 @@ config PINCTRL_BCM283X
 	   Support pin multiplexing and pin configuration control on
 	   Broadcom's 283x family of SoCs.
 
+config PINCTRL_RP1
+	bool "Raspberry Pi RP1 pin control driver"
+	depends on DM && OF_CONTROL
+	help
+	   Support pin multiplexing and pin configuration control on
+	   Raspberry Pi RP1 chip. This is used on Raspberry Pi 5 and provides
+	   GPIO and pin configuration for the RP1 I/O controller.
+
 config PINCTRL_BCM6838
 	depends on ARCH_BMIPS && PINCTRL_FULL && OF_CONTROL
 	default y
