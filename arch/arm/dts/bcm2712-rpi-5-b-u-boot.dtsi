@@ -1,0 +1,49 @@
+/* * PCIe DMA Override
+ * U-Boot's dm_pci_bus_to_phys() cannot parse the upstream dma-ranges which use
+ * 0x02000000/0x03000000 (non-prefetchable) type flags with multi-entry mappings.
+ * Replace with a single 64-bit prefetchable pass-through (0x43000000) that maps
+ * PCI address 0x0 → CPU physical 0x0 for 16 GiB.  This covers all system RAM.
+ * The upstream entries are preserved in bcm2712.dtsi for Linux compatibility;
+ * this override only affects the U-Boot-compiled DTB.
+ */
+&pcie1 {
+    dma-ranges = <0x43000000 0x0 0x00000000  0x0 0x00000000  0x4 0x00000000>;
+};
+
+&pcie2 {
+    dma-ranges = <0x43000000 0x0 0x00000000  0x0 0x00000000  0x4 0x00000000>;
+};
+
+/* * 2. RP1 Southbridge Node 
+ * This bridges the internal RP1 bus to the external PCIe link.
+ */
+&rp1_nexus {
+    bootph-all;
+    
+    /* * Pass-through DMA Ranges.
+     * This tells U-Boot: "Addresses on the RP1 internal bus map 1:1 to the PCIe bus."
+     */
+    dma-ranges = <0x43000000 0x0 0x00000000  0x43000000 0x0 0x00000000  0x4 0x00000000>;
+};
+
+/* * 3. RP1 Peripheral Aliases 
+ * Helps U-Boot find the Ethernet/USB without scanning the whole bus immediately.
+ */
+/ {
+    aliases {
+        ethernet0 = &rp1_eth;
+    };
+};
+
+/* Enable specific peripherals behind RP1 */
+&rp1_eth {
+    status = "okay";
+};
+
+&rp1_usb0 {
+    status = "okay";
+};
+
+&rp1_usb1 {
+    status = "okay";
+};
